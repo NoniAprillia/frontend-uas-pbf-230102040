@@ -32,7 +32,7 @@ Komponen Utama MVC:
 - View → Menampilkan data ke pengguna (HTML, CSS).
 - Controller → Menghubungkan model dan view; logika utama aplikasi.
 
-- Langkah awal saat menjadi Backend 
+Langkah awal saat menjadi Backend 
 1. Buat Proyek Ci baru 
 ```
 composer create-project codeigniter4/appstarter backend_perpustakaan
