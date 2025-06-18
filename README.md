@@ -1,3 +1,68 @@
+# UAS FRONTEND ( LARAVEL ) 
+Laravel membantu developer membuat website atau aplikasi web lebih cepat dan aman, karena sudah menyediakan banyak fitur bawaan, seperti:
+- Routing (mengatur URL dan halaman yang dituju)
+- Blade (template untuk tampilan web)
+- Validasi data
+- dan banyak lagi.
+
+# Tahapan Install Laravel 
+1. Persiapan Awal
+Pastikan perangkat sudah terinstal:
+- PHP 
+- Composer
+- MySQL/MariaDB
+- Git
+
+2. Membuat Project Laravel 
+- Masuk ke Cmd lalu ketik
+```
+cd..
+cd..
+cd laragon
+cd www
+composer create-project laravel/laravel frontend-uas-230102040 ( sesuaikan dengan nim ) 
+```
+- Masuk Folder yang sudah di buat 
+```
+cd frontend-uas-230102040
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
 <p align="center">
