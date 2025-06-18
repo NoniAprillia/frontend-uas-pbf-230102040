@@ -1,4 +1,284 @@
-# UAS FRONTEND ( LARAVEL ) 
+# UAS PBF - 230102040 
+pada uas PBF hari ini membuat seperti sistem peminjaman buku di perpustakaan 
+dengan database 
+```
+CREATE DATABASE db_perpus_[NIM_ANDA];
+USE db_perpus_[NIM_ANDA];
+
+CREATE TABLE buku (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  judul VARCHAR(100),
+  pengarang VARCHAR(100),
+  penerbit VARCHAR(100),
+  tahun_terbit INT
+);
+
+CREATE TABLE peminjaman (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nama_peminjam VARCHAR(100),
+  judul_buku VARCHAR(100),
+  tanggal_pinjam DATE,
+  tanggal_kembali DATE
+);
+```
+setelah kita punya database nya kita lanjutkan ke bagian backend 
+
+## BACKEND ( CI )
+Ci atau CodeIgniter adalah framework PHP yang ringan dan cepat, digunakan untuk membangun aplikasi web. 
+CI menggunakan pola MVC (Model-View-Controller), yang membantu memisahkan logika program dari tampilan (UI) dan pengolahan data.
+
+Komponen Utama MVC:
+- Model → Mengelola data (berhubungan dengan database).
+- View → Menampilkan data ke pengguna (HTML, CSS).
+- Controller → Menghubungkan model dan view; logika utama aplikasi.
+
+- Langkah awal saat menjadi Backend 
+1. Buat Proyek Ci baru 
+```
+composer create-project codeigniter4/appstarter backend_perpustakaan
+```
+2. edit env agar terarahkan ke database kita 
+```
+database.default.hostname = localhost
+database.default.database = db_perpus_230102040
+database.default.username = root
+database.default.password =
+```
+3. Membuat Model Buku dan Peminjaman 
+- BukuModel.php 
+```
+<?php namespace App\Models;
+use CodeIgniter\Model;
+
+class BukuModel extends Model {
+    protected $table = 'buku';
+    protected $primaryKey = 'id';
+    protected $allowedFields = ['judul', 'pengarang', 'penerbit', 'tahun_terbit'];
+    protected $useTimestamps = false;
+}
+```
+
+- PeminjamanModel.php
+```
+<?php namespace App\Models;
+use CodeIgniter\Model;
+
+class PeminjamanModel extends Model {
+    protected $table = 'peminjaman';
+    protected $primaryKey = 'id';
+    protected $allowedFields = ['nama_peminjam', 'judul_buku', 'tanggal_pinjam', 'tanggal_kembali'];
+    protected $useTimestamps = false;
+}
+```
+
+4. Membuat Controllers
+- BukuController.php 
+```
+<?php 
+
+namespace App\Controllers;
+use CodeIgniter\RESTful\ResourceController;
+
+
+class Buku extends ResourceController {
+    protected $modelName = 'App\Models\BukuModel';
+    protected $format    = 'json';
+
+    public function index()
+    {
+        return $this->respond($this->model->findAll());
+    }
+
+    public function show($id = null)
+    {
+        $data = $this->model->find($id);
+        if (!$data) {
+            return $this->failNotFound("Data $id tidak ditemukan");
+        }
+
+        return $this->respond($data);
+    }
+
+    public function create()
+    {
+        $json = $this->request->getJSON();
+
+        $data = [
+            // 'id' => $json->id,
+            'id' => $json->id,
+            'judul' => $json->judul,
+            'pengarang' => $json->pengarang,
+            'penerbit' => $json->penerbit,
+            'tahun_terbit' => $json->tahun_terbit,
+        ];
+
+        $this->model->insert($data);
+
+        return $this->respondCreated(['message' => 'Data berhasil ditambahkan']);
+    }
+
+    public function update($id = null)
+    {
+        $json = $this->request->getJSON();
+
+        if (!$json) {
+            return $this->fail('Request body harus berupa JSON yang valid', 400);
+        }
+
+        $existing = $this->model->find($id);
+        if (!$existing) {
+            return $this->failNotFound("Data $id tidak ditemukan");
+        }
+
+        $data = [
+            'id' => $json->id,
+            'judul' => $json->judul,
+            'pengarang' => $json->pengarang,
+            'penerbit' => $json->penerbit,
+            'tahun_terbit' => $json->tahun_terbit,
+        ];
+
+        $this->model->update($id, $data);
+
+        return $this->respond(['message' => 'Data berhasil diperbarui']);
+    }
+
+    public function delete($id = null)
+    {
+        try {
+            $data = $this->model->find($id);
+
+            if (!$data) {
+                return $this->failNotFound("Data $id tidak ditemukan");
+            }
+
+            if ($this->model->delete($id)) {
+                return $this->respondDeleted(['message' => "Data $id berhasil dihapus"]);
+            } else {
+                return $this->failServerError("Gagal menghapus data $id");
+            }
+
+        } catch (\Exception $e) {
+            return $this->failServerError("Terjadi kesalahan: " . $e->getMessage());
+}
+}
+}
+```
+
+- PeminjamanController.php
+```
+<?php 
+
+namespace App\Controllers;
+use CodeIgniter\RESTful\ResourceController;
+
+
+class Peminjaman extends ResourceController {
+    protected $modelName = 'App\Models\PeminjamanModel';
+    protected $format    = 'json';
+
+    public function index()
+    {
+        return $this->respond($this->model->findAll());
+    }
+
+    public function show($id = null)
+    {
+        $data = $this->model->find($id);
+        if (!$data) {
+            return $this->failNotFound("Data $id tidak ditemukan");
+        }
+        return $this->respond($data);
+    }
+
+    public function create()
+    {
+        $json = $this->request->getJSON();
+
+        $data = [
+            // 'id' => $json->id,
+            'id' => $json->id,
+            'nama_peminjaman' => $json->nama_peminjaman,
+            'judul_buku' => $json->judul_buku,
+            'tanggal_peminjaman' => $json->tanggal_peminjaman,
+            'tanggal_kembali' => $json->tanggal_kembali,
+
+        ];
+
+        $this->model->insert($data);
+
+        return $this->respondCreated(['message' => 'Data berhasil ditambahkan']);
+    }
+
+    public function update($id = null)
+    {
+        $json = $this->request->getJSON();
+
+        if (!$json) {
+            return $this->fail('Request body harus berupa JSON yang valid', 400);
+        }
+
+        $existing = $this->model->find($id);
+        if (!$existing) {
+            return $this->failNotFound("Data $id tidak ditemukan");
+        }
+
+        $data = [
+            'id' => $json->id,
+            'nama_peminjaman' => $json->nama_peminjaman,
+            'judul_buku' => $json->judul_buku,
+            'tanggal_peminjaman' => $json->tanggal_peminjaman,
+            'tanggal_kembali' => $json->tanggal_kembali,
+        ];
+
+        $this->model->update($id, $data);
+
+        return $this->respond(['message' => 'Data berhasil diperbarui']);
+    }
+
+    public function delete($id = null)
+    {
+        try {
+            $data = $this->model->find($id);
+
+            if (!$data) {
+                return $this->failNotFound("Data $id tidak ditemukan");
+            }
+
+            if ($this->model->delete($id)) {
+                return $this->respondDeleted(['message' => "Data $id berhasil dihapus"]);
+            } else {
+                return $this->failServerError("Gagal menghapus data $id");
+            }
+
+        } catch (\Exception $e) {
+            return $this->failServerError("Terjadi kesalahan: " . $e->getMessage());
+}
+}
+}
+```
+
+5. Routing 
+```
+$routes->resource('buku');
+$routes->resource('peminjaman');
+```
+6. Pada Database.php tambahkan Routes 
+```
+public array $default = [
+        'DSN'          => '',
+        'hostname'     => 'localhost',
+        'username'     => 'root',
+        'password'     => '',
+        'database'     => 'db_perpus_230102040',
+```
+7. Lalu Test Postman 
+```
+http://localhost:8080/buku
+http://localhost:8080/peminjaman
+``` 
+
+## FRONTEND ( LARAVEL ) 
 Laravel membantu developer membuat website atau aplikasi web lebih cepat dan aman, karena sudah menyediakan banyak fitur bawaan, seperti:
 - Routing (mengatur URL dan halaman yang dituju)
 - Blade (template untuk tampilan web)
